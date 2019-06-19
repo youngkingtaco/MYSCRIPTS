@@ -1,0 +1,24 @@
+#!/bin/bash
+
+
+#THIS WILL LET YOU ENTER YOUR USERNAME
+
+read -p "Enter the username that you want to create for this virtual vm" : USERNAME 
+
+#THIS WILL ASK FOR YOUR NAME
+
+read -p "WHO ARE YOU": NAME
+
+#IT WILL ASK FOR YOUR PASSWD 
+
+read -p "ENTER YOUR PASSWD FOR THIS ACCOUNT:" PASSWD
+
+#THIS WILL LET YOU CREATE THE ACCOUNT
+
+useradd -c ${NAME} -m ${USERNAME}
+
+#THIS WILL SET YOUR PASSWORD 
+echo ${PASSWD} | stdin -- ${USERNAME}
+
+#FORCE THE PASSWORD TO CHANGE 
+passwd -e {$USERNAME}
