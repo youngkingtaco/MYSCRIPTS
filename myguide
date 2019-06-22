@@ -1,0 +1,11 @@
+throughout my experience as a SysAdmin, i have been working with bash scripts for quite a long time. 
+I have decided to share some helpful steps that has helped me to develop my scripts. 
+To be honest, when i started my career, i have struggled with bash, so i felt like by sharing these steps
+I could help anyone to develop a good script. ENJOY !!!!!
+
+1. shebang or !#/bin/bash
+2. always comments every step that you are doing for any confusion
+3. Generate variables
+4. Create Functions for your script - local variables 
+5.  develop the main script content
+6. exit with an exit status ### you dont necessarily have to do it a lot
