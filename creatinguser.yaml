@@ -1,0 +1,51 @@
+#### CREATING A 
+---
+   hosts: east_coast_servers
+   remote_user: xhobando
+   become: yes
+   
+   tasks: 
+     - name: Add a new user account to the production environment
+       user: 
+         name: xtoparah
+         state: present
+         home: /export/home/staff/xtoparah
+         shell: /bin/bash
+         group: staff, wheel 
+         password: "{{ upassword | password_hash('sha512') }}"
+         append: yes
+         
+     - name: Making sure that we have a wheel group
+       group: 
+         name: wheel 
+         state: present
+     - name: Ensuring that wheel group is able to use sudo without a password on host servers
+       lineinfile:
+         dest: /etc/sudoers 
+         state: present
+         regexp: '^%wheel'
+         line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+         validate: 'visudo -cf %s'
+##### taking some notes here, if the wheel group is able to sudo without password then the next play would work,too ######
+     - name: adding the user I created to the sudoers config file 
+       lineinfile: 
+         dest: /etc/sudoers
+         regexp: '^xtoparah'
+         line: 'xtoparah ALL=(ALL) NOPASSWD: ALL' 
+#### HERE YOU ARE CREATING YOUR PUB KEYS FROM ANSIBLE SERVER, NOT FROM THE NODE ######
+     - name: setting up authorized keys for the user to ssh on remote hosts passwordless
+       authorized_keys: 
+         user: xtoparah
+         state: present
+         key: "{{ lookup('file', 'export/home/staff/xtoparah/.ssh/id_rsa.pub') }}"
+         
+         
+         
+       
+         
+         
+         
+       
+         
+         
+         
