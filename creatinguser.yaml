@@ -1,5 +1,8 @@
-#### CREATING A 
----
+#### CREATING A ADMIN USER THROUGH ANSIBLE. 
+#### THIS PLAYBOOK WOULD ADD A USER WITH SUDO ACCESS, AND WILL GENERATE SSH KEYS AND DEPLOY THE PUBLIC KEYS OVER THE REMOTE HOSTS.
+#### 
+#### /etc/ansible/ansible_setup_passwordless-setup_group  ### this would be the inventory that you would need to create
+
    hosts: east_coast_servers
    remote_user: xhobando
    become: yes
@@ -57,7 +60,7 @@
        when: ssh_key_file_exist_check is defined and ssh_key_file_exist_check.results[0].stat.exists == false and ssh_keyfile_exist_check.results[1].stat.exists == false
        
      - name: Distributing ssh keys to the remote hosts
-       shell: "usr/local/bin/sshpass -p \"{{remote_machine_password}}\ ssh-copy-id -o StrictHostKeyChecking=no -i /export/home/staff/xtoparah/.ssh/ssh_key_filename}}.pub \"{{remote_machine_username}}@{{ hostvars[item].ansible_host }}\""
+       shell: "usr/local/bin/sshpass -p \"{{remote_machine_password}}\ ssh-copy-id -o StrictHostKeyChecking=no -i /export/home/staff/xtoparah/.ssh/ssh_key_filename}}.pub 
        register: ssh_copy_id_execution
        with_items:
          - "{{groups['ansible_setup_passwordless-setup_group']}}"
