@@ -12,7 +12,7 @@
          home: /export/home/staff/xtoparah
          shell: /bin/bash
          group: staff, wheel 
-         password: "{{ upassword | password_hash('sha512') }}"
+         password: "{{ upassword | password_hash('sha512') }}" ####YOU CAN ALSO TYPE IN YOUR OWN PASSWORD IF YOU'D LIKE TO
          append: yes
          
      - name: Making sure that we have a wheel group
@@ -32,12 +32,42 @@
          dest: /etc/sudoers
          regexp: '^xtoparah'
          line: 'xtoparah ALL=(ALL) NOPASSWD: ALL' 
+     - name: Fail execution if any of the needed OS TOOLS are missing
+       fail:
+         msg: "One or more of the :sshpass, ssh-keygen, ssh-copy-id are missing on this Machine. Please Install them!"
+       when: os_tools_exist.rc != 0
+     
+     - name: check if .ssh key file exists 
+       stat:
+         path: "/export/home/staff/xtoparah/.ssh/{{item}}"
+       register: check_ssh_keys_file_exist
+       with_items: 
+         - "{{ssh_key_filename}}"
+         - "{{ssh_key_filename}}.pub"   
+     
+     - fail:
+         msg: "Whoops! Public Keys doesn't exist"
+       when: check_ssh_keys_file_exist != 0  
+
 #### HERE YOU ARE CREATING YOUR PUB KEYS FROM ANSIBLE SERVER, NOT FROM THE NODE ######
-     - name: setting up authorized keys for the user to ssh on remote hosts passwordless
-       authorized_keys: 
-         user: xtoparah
-         state: present
-         key: "{{ lookup('file', 'export/home/staff/xtoparah/.ssh/id_rsa.pub') }}"
+     - name: Generate ssh keys key on local machine
+       shell: "ssh-keygen -t rsa -f /export/home/staff/xtoparah/.ssh/{{ssh_key_filename}} -P \"\""
+       register: ssh_key_creation
+       failed_when: ssh_key_creation.rc != 0
+       when: ssh_key_file_exist_check is defined and ssh_key_file_exist_check.results[0].stat.exists == false and ssh_keyfile_exist_check.results[1].stat.exists == false
+       
+     - name: Distributing ssh keys to the remote hosts
+       shell: "usr/local/bin/sshpass -p \"{{remote_machine_password}}\ ssh-copy-id -o StrictHostKeyChecking=no -i /export/home/staff/xtoparah/.ssh/ssh_key_filename}}.pub \"{{remote_machine_username}}@{{ hostvars[item].ansible_host }}\""
+       register: ssh_copy_id_execution
+       with_items:
+         - "{{groups['ansible_setup_passwordless-setup_group']}}"
+       failed_when: ssh_copy_id_execution.rc != 0 
+       
+       tasks: 
+         name: check ssh to remote host works
+         shell: "hostname; id"
+         register: ssh_connection_test
+         failed_when: ssh_connection_test.rc != 0
          
          
          
