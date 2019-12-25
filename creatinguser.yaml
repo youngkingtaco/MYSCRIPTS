@@ -33,6 +33,7 @@
      - name: adding the user I created to the sudoers config file 
        lineinfile: 
          dest: /etc/sudoers
+         state: present
          regexp: '^xtoparah'
          line: 'xtoparah ALL=(ALL) NOPASSWD: ALL' 
      - name: Fail execution if any of the needed OS TOOLS are missing
